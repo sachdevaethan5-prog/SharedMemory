@@ -1,0 +1,13 @@
+# Changelog
+
+First number: a permission changed. Second: a new ability. Third: a fix.
+
+## 1.0.0 (2026-10-07)
+
+First public release.
+
+- Memory: save, search, list, update, delete. Notes can be marked as an assistant's guess
+  and can carry an end date.
+- Tasks and bills, each with their own tools.
+- `memory_recent`: the newest things across memory, tasks and bills, so "the thing I just
+  saved" is found in one call from any chat.

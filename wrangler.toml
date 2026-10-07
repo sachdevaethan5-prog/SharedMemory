@@ -1,0 +1,17 @@
+name = "shared-memory"
+main = "src/index.js"
+compatibility_date = "2026-10-02"
+workers_dev = true
+preview_urls = false
+
+[vars]
+# Your time zone, for due dates and "today". Any IANA name, e.g. "Europe/London".
+TIMEZONE = "America/New_York"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "shared-memory"
+# Paste the id printed by: npx wrangler d1 create shared-memory
+database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
+
+# Secret (never put it in this file): npx wrangler secret put MEMORY_KEY
