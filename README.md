@@ -31,8 +31,8 @@ Cloudflare's free plan.
 You need a free Cloudflare account and Node 22 or newer.
 
 ```bash
-git clone <this repo> shared-memory
-cd shared-memory
+git clone https://github.com/sachdevaethan5-prog/SharedMemory.git
+cd SharedMemory
 npx wrangler login
 npx wrangler d1 create shared-memory
 ```
