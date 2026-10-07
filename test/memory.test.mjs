@@ -61,6 +61,16 @@ assert.equal(row(b).text, "His girlfriend is named Alex."); assert.equal(row(b).
 assert.ok((await call("memory_update", { id: b, text: "   " })).isError);
 assert.ok((await call("memory_update", { id: "nope0000", text: "x" })).isError);
 
+// too long: refused with the count, never cut; exactly 2,000 is fine
+const count = () => sqlite.prepare("SELECT COUNT(*) AS n FROM memory").get().n, had = count();
+r = await call("memory_save", { text: "x".repeat(2001) });
+assert.ok(r.isError); assert.ok(r.text.includes("2,001 characters") && r.text.includes("limit is 2,000")); assert.equal(count(), had);
+r = await call("memory_update", { id: b, text: "y".repeat(2500) });
+assert.ok(r.isError && r.text.includes("2,500")); assert.equal(row(b).text, "His girlfriend is named Alex.");
+r = await call("memory_save", { text: "  " + "z".repeat(2000) + "  " });
+assert.ok(!r.isError); assert.equal(row(idOf(r.text)).text.length, 2000);
+await call("memory_delete", { id: idOf(r.text) });
+
 // search and list: archive is skipped unless asked for, category filter works
 assert.equal((await call("memory_search", { query: "steel" })).text, "No matching facts.");
 assert.ok((await call("memory_search", { query: "steel", category: "archive" })).text.includes("steel bikes"));

@@ -3,7 +3,7 @@
 // read and write. Data lives in a D1 database (binding DB, tables in ../schema.sql).
 // Setup is in README.md. Connector URL: https://<worker>.workers.dev/mcp/<MEMORY_KEY>
 
-const SERVER = { name: "shared-memory", version: "1.1.0" };
+const SERVER = { name: "shared-memory", version: "1.1.1" };
 const SUPPORTED_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const MAX_FACTS = 2000;
 const MAX_TEXT = 2000;
@@ -18,7 +18,7 @@ const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        text: { type: "string", description: "The fact, written as one clear sentence." },
+        text: { type: "string", description: "The fact, written as one clear sentence. At most 2,000 characters; longer text is refused, not cut." },
         category: {
           type: "string",
           description:
@@ -76,7 +76,7 @@ const TOOLS = [
       type: "object",
       properties: {
         id: { type: "string", description: "The fact's id from search or list." },
-        text: { type: "string", description: "The new text. Leave out to keep the current text." },
+        text: { type: "string", description: "The new text, at most 2,000 characters. Leave out to keep the current text." },
         category: { type: "string", description: "Optional new category. Use 'archive' for a finished thing; memory_search then skips it unless it asks for category 'archive'." },
         source: { type: "string", description: "'claude' or 'chatgpt'." },
         confirmed: { type: "boolean", description: "true once the user confirms it; false to mark it as an inference." },
@@ -459,6 +459,11 @@ async function callTaskTool(name, args, env) {
 // ---- Memory notes (D1 table "memory"; one row per note) ----
 
 const clean = (s, n = MAX_TEXT) => String(s ?? "").trim().slice(0, n);
+// Note text over the limit is refused, never cut: a silent cut once lost the end of a note.
+const tooLong = (s) => {
+  const n = String(s ?? "").trim().length;
+  return n > MAX_TEXT ? `That note is ${n.toLocaleString("en-US")} characters; the limit is ${MAX_TEXT.toLocaleString("en-US")}. Shorten it or split it into two notes.` : null;
+};
 const cat = (s) => clean(s, 40).toLowerCase() || "other";
 const newId = () => crypto.randomUUID().slice(0, 8);
 const todayLocal = () => new Date().toLocaleDateString("en-CA", { timeZone: TZ });
@@ -506,6 +511,8 @@ async function callTool(name, args, env) {
   const now = new Date().toISOString();
 
   if (name === "memory_save") {
+    const long = tooLong(args.text);
+    if (long) return err(long);
     const text = clean(args.text);
     if (!text) return err("text is required");
     if (cat(args.category) === "task" || /^TASK:/i.test(text)) {
@@ -567,6 +574,8 @@ async function callTool(name, args, env) {
     if (!f) return err("No fact with that id.");
     const sets = ["checked_at = ?"], vals = [now]; // any update counts as "looked at and still true"
     if (args.text != null) {
+      const long = tooLong(args.text);
+      if (long) return err(long);
       const text = clean(args.text);
       if (!text) return err("text can't be empty. Leave it out to keep the current text.");
       if (text !== f.text) { sets.push("text = ?", "updated_at = ?"); vals.push(text, now); }

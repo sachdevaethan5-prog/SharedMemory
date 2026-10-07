@@ -2,6 +2,12 @@
 
 First number: a permission changed. Second: a new ability. Third: a fix.
 
+## 1.1.1 (2026-10-07)
+
+- Fix: `memory_save` and `memory_update` used to cut note text at 2,000 characters without
+  saying so, which lost the end of long notes. They now refuse with the character count and
+  ask for a shorter note or two notes. Nothing is saved or changed when that happens.
+
 ## 1.1.0 (2026-10-07)
 
 - `memory_search` skips notes in the "archive" category unless the search asks for
