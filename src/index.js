@@ -3,7 +3,7 @@
 // read and write. Data lives in a D1 database (binding DB, tables in ../schema.sql).
 // Setup is in README.md. Connector URL: https://<worker>.workers.dev/mcp/<MEMORY_KEY>
 
-const SERVER = { name: "shared-memory", version: "1.0.0" };
+const SERVER = { name: "shared-memory", version: "1.1.0" };
 const SUPPORTED_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const MAX_FACTS = 2000;
 const MAX_TEXT = 2000;
@@ -23,7 +23,7 @@ const TOOLS = [
           type: "string",
           description:
             "One short lowercase category, e.g. school, money, work, car, preferences, people, health, travel, other. " +
-            "Use 'archive' for notes about finished things kept only for reference.",
+            "Use 'archive' for notes about finished things kept only for reference: memory_search skips them unless it asks for category 'archive'.",
         },
         source: { type: "string", description: "Who is saving it: 'claude' or 'chatgpt'." },
         confirmed: {
@@ -42,7 +42,8 @@ const TOOLS = [
   {
     name: "memory_search",
     description:
-      "Search the user's shared memory by keywords. Use at the start of a conversation when personal context would help, and before saving to avoid duplicates.",
+      "Search the user's shared memory by keywords. Use at the start of a conversation when personal context would help, and before saving to avoid duplicates. " +
+      "Archived notes (finished things) are skipped unless you pass category 'archive'.",
     inputSchema: {
       type: "object",
       properties: {
@@ -76,7 +77,7 @@ const TOOLS = [
       properties: {
         id: { type: "string", description: "The fact's id from search or list." },
         text: { type: "string", description: "The new text. Leave out to keep the current text." },
-        category: { type: "string", description: "Optional new category. Use 'archive' for a finished thing." },
+        category: { type: "string", description: "Optional new category. Use 'archive' for a finished thing; memory_search then skips it unless it asks for category 'archive'." },
         source: { type: "string", description: "'claude' or 'chatgpt'." },
         confirmed: { type: "boolean", description: "true once the user confirms it; false to mark it as an inference." },
         expires: { type: "string", description: "YYYY-MM-DD after which it stops being true, or 'none' to clear." },
@@ -529,7 +530,8 @@ async function callTool(name, args, env) {
   if (name === "memory_search") {
     const words = clean(args.query, 200).toLowerCase().split(/\s+/).filter((w) => w.length > 1);
     if (!words.length) return err("query is required");
-    const pool = await loadFacts(env, args.category ? cat(args.category) : null);
+    const category = args.category ? cat(args.category) : null;
+    const pool = (await loadFacts(env, category)).filter((f) => category || f.category !== "archive");
     const hits = pool
       .map((f) => [score(f, words), f])
       .filter(([s]) => s > 0)

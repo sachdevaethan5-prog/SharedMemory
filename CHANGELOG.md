@@ -2,6 +2,11 @@
 
 First number: a permission changed. Second: a new ability. Third: a fix.
 
+## 1.1.0 (2026-10-07)
+
+- `memory_search` skips notes in the "archive" category unless the search asks for
+  category "archive", so finished things stop crowding out current ones.
+
 ## 1.0.0 (2026-10-07)
 
 First public release.

@@ -61,8 +61,9 @@ assert.equal(row(b).text, "His girlfriend is named Alex."); assert.equal(row(b).
 assert.ok((await call("memory_update", { id: b, text: "   " })).isError);
 assert.ok((await call("memory_update", { id: "nope0000", text: "x" })).isError);
 
-// search and list: archive is still found, category filter works
-assert.ok((await call("memory_search", { query: "steel" })).text.includes("steel bikes"));
+// search and list: archive is skipped unless asked for, category filter works
+assert.equal((await call("memory_search", { query: "steel" })).text, "No matching facts.");
+assert.ok((await call("memory_search", { query: "steel", category: "archive" })).text.includes("steel bikes"));
 assert.ok((await call("memory_list", { category: "school" })).text.startsWith("1 fact(s)"));
 assert.equal((await call("memory_search", { query: "zzzz" })).text, "No matching facts.");
 
