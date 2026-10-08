@@ -2,6 +2,12 @@
 
 First number: a permission changed. Second: a new ability. Third: a fix.
 
+## 1.2.0 (2026-10-08)
+
+- Work log: if you keep a note titled WORK LOG, every connected session is told to read it
+  before project work and to add a line when it finishes, so a new session starts knowing
+  what the last one did. No new tool; the README shows how to start the note.
+
 ## 1.1.1 (2026-10-07)
 
 - Fix: `memory_save` and `memory_update` used to cut note text at 2,000 characters without

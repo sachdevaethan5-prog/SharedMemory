@@ -3,7 +3,7 @@
 // read and write. Data lives in a D1 database (binding DB, tables in ../schema.sql).
 // Setup is in README.md. Connector URL: https://<worker>.workers.dev/mcp/<MEMORY_KEY>
 
-const SERVER = { name: "shared-memory", version: "1.1.1" };
+const SERVER = { name: "shared-memory", version: "1.2.0" };
 const SUPPORTED_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 const MAX_FACTS = 2000;
 const MAX_TEXT = 2000;
@@ -629,7 +629,8 @@ async function handleRpc(msg, env) {
         "The user's shared memory, used by every assistant connected to it. Search it when personal context would help; save durable facts they share; update facts that change. Never store secrets. " +
         "Their to-dos live in a separate task database: use task_list, task_add, task_update and task_get for anything they need to do, not memory_save. " +
         "Bills and statements they owe go in bill_list, bill_add and bill_update. " +
-        "When they mention something they just saved or told another chat, call memory_recent first instead of searching.",
+        "When they mention something they just saved or told another chat, call memory_recent first instead of searching. " +
+        "If a note titled WORK LOG exists and this session builds or plans one of their projects, read it first (memory_search \"WORK LOG\") for what earlier sessions did and left unfinished, and add your own line the way that note describes when you finish or stop.",
     });
   }
   if (isNotification) return null; // e.g. notifications/initialized

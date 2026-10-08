@@ -63,6 +63,19 @@ https://shared-memory.<your-subdomain>.workers.dev/mcp/<MEMORY_KEY>
 Start a new chat and say "remember that I prefer window seats". Open the other assistant
 and ask "what did I just save?".
 
+## Work log (optional)
+
+To have each new session know what the last one did, save one note that starts like this:
+
+```
+WORK LOG (newest first. Read before project work. When you finish or stop, add one line at
+the top: date, project, what was done, what is unfinished, what is next. Keep the last 7.)
+```
+
+Every connected assistant is told to read a note with that title before it builds or plans
+something, and to add its own line. It depends on the assistant doing so: a chat that is
+closed mid-task leaves no line.
+
 ## Security
 
 - The key in the URL is the only lock. Anyone with the URL can read and change everything,
